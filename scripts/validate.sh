@@ -160,6 +160,14 @@ require_pattern \
   "update_config:" \
   "Rolling update configuration was not found."
 
+if ! sed -n \
+  '/update_config:/,/rollback_config:/p' \
+  stack/docker-stack.yml |
+  grep -Fq "order: stop-first"; then
+
+  fail "Rolling update must use stop-first with the current replica placement strategy."
+fi
+
 require_pattern \
   "stack/docker-stack.yml" \
   "failure_action: rollback" \
