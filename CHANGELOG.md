@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes deste projeto são registradas neste arquivo.
 
+## [1.1.1] - 2026-09-04
+
+### Corrigido
+
+- Ajustado o rolling update da stack para `stop-first`.
+- Eliminado conflito entre `start-first` e `max_replicas_per_node: 1` na arquitetura com exatamente três workers.
+
 ## [1.1.0] - 2026-09-04
 
 ### Adicionado
