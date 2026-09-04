@@ -1,0 +1,55 @@
+name: Project Validation
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends shellcheck ruby
+
+      - name: Validate shell scripts with ShellCheck
+        run: |
+          shellcheck scripts/install-docker.sh
+          shellcheck scripts/configure-swarm.sh
+          shellcheck scripts/deploy-demo.sh
+          shellcheck scripts/validate.sh
+
+      - name: Validate project structure
+        run: bash scripts/validate.sh
+
+      - name: Validate Vagrantfile syntax
+        run: ruby -c Vagrantfile
+
+      - name: Validate stack YAML syntax
+        run: |
+          ruby -e "
+          require 'yaml'
+          YAML.load_file('stack/docker-stack.yml')
+          puts 'docker-stack.yml syntax is valid.'
+          "
+
+      - name: Check for persisted Swarm tokens
+        run: |
+          if grep -RIn \
+            --exclude='validate.sh' \
+            --exclude='README.md' \
+            --exclude-dir='.git' \
+            -E 'SWMTKN-[A-Za-z0-9_-]+' .; then
+            echo 'Potential Docker Swarm token found.'
+            exit 1
+          fi
+
+          echo 'No persisted Docker Swarm token detected.'

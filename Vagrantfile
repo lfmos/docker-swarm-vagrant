@@ -1,53 +1,59 @@
-Vagrant.configure("2") do |config|
+# frozen_string_literal: true
 
-  # Imagem base Ubuntu
-  config.vm.box = "ubuntu/jammy64"
+VAGRANT_API_VERSION = "2"
 
+BOX = ENV.fetch("SWARM_BOX", "ubuntu/jammy64")
+MANAGER_MEMORY = ENV.fetch("SWARM_MANAGER_MEMORY", "1024").to_i
+WORKER_MEMORY = ENV.fetch("SWARM_WORKER_MEMORY", "768").to_i
+CPUS = ENV.fetch("SWARM_CPUS", "1").to_i
 
-  # Configuração comum para todas as máquinas
-  machines = {
-    "master" => "192.168.56.10",
-    "node01" => "192.168.56.11",
-    "node02" => "192.168.56.12",
-    "node03" => "192.168.56.13"
+NODES = {
+  "master" => {
+    ip: "192.168.56.10",
+    role: "manager"
+  },
+  "node01" => {
+    ip: "192.168.56.11",
+    role: "worker"
+  },
+  "node02" => {
+    ip: "192.168.56.12",
+    role: "worker"
+  },
+  "node03" => {
+    ip: "192.168.56.13",
+    role: "worker"
   }
+}.freeze
 
+Vagrant.configure(VAGRANT_API_VERSION) do |config|
+  config.vm.box = BOX
+  config.vm.boot_timeout = 600
 
-  machines.each do |hostname, ip|
-
-    config.vm.define hostname do |machine|
-
+  NODES.each do |hostname, node_config|
+    config.vm.define hostname, primary: hostname == "master" do |machine|
       machine.vm.hostname = hostname
 
-      machine.vm.network "private_network", ip: ip
+      machine.vm.network(
+        "private_network",
+        ip: node_config[:ip]
+      )
 
+      machine.vm.provision(
+        "shell",
+        path: "scripts/install-docker.sh"
+      )
 
-      # Instala Docker automaticamente
-      machine.vm.provision "shell", inline: <<-SHELL
-
-        apt-get update -y
-
-        apt-get install -y docker.io
-
-        systemctl enable docker
-        systemctl start docker
-
-        usermod -aG docker vagrant
-
-      SHELL
-
-
-      # Configuração de recursos
       machine.vm.provider "virtualbox" do |vb|
+        vb.cpus = CPUS
 
-        vb.memory = 1024
-        vb.cpus = 1
-
+        vb.memory =
+          if node_config[:role] == "manager"
+            MANAGER_MEMORY
+          else
+            WORKER_MEMORY
+          end
       end
-
     end
-
   end
-
-
 end

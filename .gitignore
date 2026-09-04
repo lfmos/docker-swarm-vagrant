@@ -1,0 +1,28 @@
+# Vagrant
+.vagrant/
+
+# VirtualBox
+*.box
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Swarm / temporary secrets
+*token*
+*.secret
+*.secrets
+
+# Logs / temporary files
+*.log
+tmp/
+temp/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
