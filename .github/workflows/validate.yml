@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install validation tools
         run: |
@@ -40,6 +40,9 @@ jobs:
           YAML.load_file('stack/docker-stack.yml')
           puts 'docker-stack.yml syntax is valid.'
           "
+
+      - name: Validate Docker Swarm stack
+        run: docker stack config -c stack/docker-stack.yml > /dev/null
 
       - name: Check for persisted Swarm tokens
         run: |
