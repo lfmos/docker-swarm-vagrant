@@ -174,7 +174,7 @@ Após o deploy, o serviço pode ser acessado pelo ambiente do laboratório, por 
 
 ## Estrutura
 
-    docker-swarm-vagrant/
+    swarm-vagrant-lab/
     ├── .github/
     │   └── workflows/
     │       └── validate.yml
@@ -215,8 +215,8 @@ Em Windows, podem ser executados através de ambientes compatíveis, como Git Ba
 
 Clone o projeto:
 
-    git clone https://github.com/lfmos/docker-swarm-vagrant.git
-    cd docker-swarm-vagrant
+    git clone https://github.com/lfmos/swarm-vagrant-lab.git
+    cd swarm-vagrant-lab
 
 Crie as VMs:
 
